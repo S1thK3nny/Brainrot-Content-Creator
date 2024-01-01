@@ -4,9 +4,11 @@ from moviepy.video.fx.all import crop
 from moviepy.audio.fx.all import audio_loop, volumex
 import os
 import random
+from utils import sprint
 
 
 # YouTube Shorts are 1080x1920
+
 
 def choose_random_file(dir):
     files = sorted(os.listdir(dir))
@@ -38,7 +40,7 @@ def comments_to_clip(dir):
 def add_gameplay(final_clip_duration):
     # Choose random gameplay from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/gameplay/")
-    print(os.path.basename(__file__) + ": " + add_gameplay.__name__ + " - chosen gameplay is " + rndfile)
+    sprint(f"chosen gameplay is {rndfile}")
     gameplay = VideoFileClip(rndfile)
     original_duration = gameplay.duration
     
@@ -61,7 +63,7 @@ def add_gameplay(final_clip_duration):
 def add_bgmusic(final_clip_duration):
     # Choose random music from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/music/")
-    print(os.path.basename(__file__) + ": " + add_bgmusic.__name__ + " - chosen bgmusic is " + rndfile)
+    sprint(f"chosen music is {rndfile}")
     bgmusic = AudioFileClip(rndfile)
 
     # If the audio is longer than the video, trim it
@@ -77,7 +79,8 @@ def add_bgmusic(final_clip_duration):
     return bgmusic
 
 def to_video(dir):
-    print("\n--------------------------------------------------\nStarting with the video conversion!\n")
+    print("\n--------------------------------------------------")
+    sprint("Starting with the video conversion!\n")
 
     post_clips = post_to_clip(dir)
     comment_clips = comments_to_clip(dir)
@@ -95,5 +98,6 @@ def to_video(dir):
     # Add random background music
     final_clip.audio = CompositeAudioClip([final_clip.audio, add_bgmusic(final_clip.duration)])
 
-    print("\nDone with the conversion progress, saving to file now!\n--------------------------------------------------")
+    print("")
+    sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------")
     final_clip.write_videofile(dir + "/result.mp4", codec='libx264', fps=24, audio_codec='aac')

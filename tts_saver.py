@@ -2,6 +2,7 @@ import os
 import random
 import string
 from tiktokvoice import tts
+from utils import sprint
 
 def get_random_voice():
     VOICES = [
@@ -33,13 +34,13 @@ def save_text_as_mp3(dir, things_to_say):
         if i == 0:
             post_dir = dir + "/audio/post/post.mp3"
             if os.path.exists(post_dir):
-                print("Post.mp3 exists, skipping...")
+                sprint("Post.mp3 exists, skipping...")
                 continue
             tts(strip_special_chars(things_to_say[i]), get_random_voice(), post_dir, False)
         else:
             for j in range(len(things_to_say[i])):
                 comment_dir = dir + "/audio/comments/" + f"comment{i-1}_{j}.mp3"
                 if os.path.exists(comment_dir):
-                    print(f"comment{i-1}_{j}.mp3 exists, skipping...")
+                    sprint(f"comment{i-1}_{j}.mp3 exists, skipping...")
                     continue
                 tts(strip_special_chars(things_to_say[i][j]), get_random_voice(), comment_dir, False)
