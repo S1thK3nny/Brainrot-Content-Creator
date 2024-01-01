@@ -1,6 +1,7 @@
-from moviepy.editor import ImageSequenceClip, ImageClip, AudioFileClip, concatenate_videoclips, ColorClip, CompositeVideoClip
+from moviepy.editor import ImageSequenceClip, ImageClip, AudioFileClip, concatenate_videoclips, ColorClip, CompositeVideoClip, VideoFileClip
 from moviepy.video.fx.resize import resize
 import os
+import random
 
 # YouTube Shorts are 1080x1920
 
@@ -8,7 +9,6 @@ def post_to_clip(dir):
     audio_clip = AudioFileClip(dir + "/audio/post/post.mp3")
     img_clip = ImageClip(dir + "/images/post/post.png", duration=audio_clip.duration)
     img_clip = img_clip.set_audio(audio_clip)
-
     return img_clip
 
 def comments_to_clip(dir):
@@ -25,8 +25,24 @@ def comments_to_clip(dir):
         img_clip = ImageSequenceClip([os.path.join(images_directory, images[idx])], durations=[audio_clip.duration])
         img_clip = img_clip.set_audio(audio_clip)
         clips.append(img_clip)
-
     return clips
+
+def add_gameplay(final_clip_duration):
+    gameplay = VideoFileClip(str(os.getcwd() + "/resources/gameplay/subway_surfers.mp4"))
+    original_duration = gameplay.duration
+    
+    # Generate random start and end points
+    max_start_time = original_duration - final_clip_duration
+    start_time = random.uniform(0, max_start_time)
+    end_time = start_time + final_clip_duration
+    
+    # Trim the original gameplay clip
+    gameplay_clip = gameplay.subclip(start_time, end_time)
+    gameplay_clip = gameplay_clip.without_audio()
+    gameplay_clip = resize(gameplay_clip, width=1080)
+    gameplay_clip = gameplay_clip.set_position(("center", "bottom"))  # Set the position to bottom
+    return gameplay_clip
+
 
 def to_video(dir):
     post_clips = post_to_clip(dir)
@@ -34,11 +50,12 @@ def to_video(dir):
     all_clips = [post_clips] + comment_clips
 
     final_clip = concatenate_videoclips(all_clips, method="compose")
-    final_clip = resize(final_clip, (1080,960))
+    final_clip = resize(final_clip, width=1080)  # Maintain original aspect ratio while adjusting width
     
-    background_clip = ColorClip(size=(1080,1920), color=(255,255,255), duration=final_clip.duration)
+    background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
     
-    # Pass the clips as a list to CompositeVideoClip
-    final_clip = CompositeVideoClip([background_clip, final_clip])
+    # Position the final_clip at the bottom half
+    final_clip = CompositeVideoClip([background_clip.set_position(("center", "bottom")), final_clip], use_bgclip=True)
 
-    final_clip.write_videofile(dir + "/result.mp4", codec='h264', fps=24)
+    final_clip = CompositeVideoClip([add_gameplay(final_clip.duration), final_clip], use_bgclip=True)
+    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', fps=24, audio_codec='aac')
