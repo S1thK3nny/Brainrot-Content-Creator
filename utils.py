@@ -9,4 +9,6 @@ def sprint(message):
     func = frame.f_code.co_name
     if func != '<module>':  # Exclude module-level
         prefix += ": " + func
-    print(prefix + " - " + message)
+    str = prefix + " - " + message
+    print(str)
+    return str

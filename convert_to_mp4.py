@@ -5,6 +5,7 @@ from moviepy.audio.fx.all import audio_loop, volumex
 import os
 import random
 from utils import sprint
+from datetime import datetime
 
 
 # YouTube Shorts are 1080x1920
@@ -37,10 +38,10 @@ def comments_to_clip(dir):
         clips.append(img_clip)
     return clips
 
-def add_gameplay(final_clip_duration):
+def add_gameplay(final_clip_duration, list):
     # Choose random gameplay from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/gameplay/")
-    sprint(f"chosen gameplay is {rndfile}")
+    list.append(sprint(f"chosen gameplay is {rndfile}")) # Don't just print which gameplay file is chosen, but also save the print
     gameplay = VideoFileClip(rndfile)
     original_duration = gameplay.duration
     
@@ -60,10 +61,10 @@ def add_gameplay(final_clip_duration):
     gameplay_clip = gameplay_clip.set_position(("center", "bottom"))  # Set the position to bottom
     return gameplay_clip
 
-def add_bgmusic(final_clip_duration):
+def add_bgmusic(final_clip_duration, list):
     # Choose random music from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/music/")
-    sprint(f"chosen music is {rndfile}")
+    list.append(sprint(f"chosen music is {rndfile}")) # Don't just print which music file is chosen, but also save the print
     bgmusic = AudioFileClip(rndfile)
 
     # If the audio is longer than the video, trim it
@@ -74,9 +75,18 @@ def add_bgmusic(final_clip_duration):
         bgmusic = audio_loop(bgmusic, duration=final_clip_duration)
 
     # Reduce the volume of the audio
-    bgmusic = bgmusic.fx(volumex, 0.5)
+    bgmusic = bgmusic.fx(volumex, 0.2)
 
     return bgmusic
+
+def write_info_to_file(dir, list):
+    # Write bgmusic and gameplay information to a text file
+    sprint("Writing gameplay and bgmusic to info.txt!\n")
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    info_filename = f"{dir}/info_{timestamp}.txt"
+    with open(info_filename, 'w') as info_file:
+        info_file.write(list[0] + '\n')
+        info_file.write(list[1] + '\n')
 
 def to_video(dir):
     print("\n--------------------------------------------------")
@@ -92,12 +102,15 @@ def to_video(dir):
     background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
     final_clip = CompositeVideoClip([background_clip.set_position(("center", "center")), final_clip.set_position(("center", "center"))], use_bgclip=True)
 
+    list = []
+
     # Merge gameplay and the transparent video clip with the reddit images we created
-    final_clip = CompositeVideoClip([add_gameplay(final_clip.duration), final_clip], use_bgclip=True)
+    final_clip = CompositeVideoClip([add_gameplay(final_clip.duration, list), final_clip], use_bgclip=True)
 
     # Add random background music
-    final_clip.audio = CompositeAudioClip([final_clip.audio, add_bgmusic(final_clip.duration)])
+    final_clip.audio = CompositeAudioClip([final_clip.audio, add_bgmusic(final_clip.duration, list)])
 
-    print("")
+    write_info_to_file(dir, list)
+
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------")
     final_clip.write_videofile(dir + "/result.mp4", codec='libx264', fps=24, audio_codec='aac')
