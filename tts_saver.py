@@ -15,10 +15,6 @@ def get_random_voice():
         'en_us_007',                  # English US - Male 2
         'en_us_009',                  # English US - Male 3
         'en_us_010',                  # English US - Male 4
-
-        # OTHER
-        'en_male_narration',           # narrator
-        'en_female_emotional',         # peaceful
     ]
     return random.choice([voice for voice in VOICES])
 
