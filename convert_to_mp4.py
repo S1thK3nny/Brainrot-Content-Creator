@@ -56,7 +56,10 @@ def add_gameplay(final_clip_duration, list):
     
     # Resize the clip to the desired height and crop the width
     gameplay_clip = resize(gameplay_clip, height=1920)
-    gameplay_clip = crop(gameplay_clip, x_center=gameplay_clip.w/2, width=1080)  # Crop the width to 1080 from the center
+    if gameplay_clip.w >= 1080:
+        gameplay_clip = crop(gameplay_clip, x_center=gameplay_clip.w/2, width=1080)  # Crop the width to 1080 from the center
+    else:
+        gameplay_clip = resize(gameplay_clip, (1080,1920))
     
     gameplay_clip = gameplay_clip.set_position(("center", "bottom"))  # Set the position to bottom
     return gameplay_clip
@@ -112,5 +115,5 @@ def to_video(dir):
 
     write_info_to_file(dir, list)
 
-    sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------")
+    sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
     final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=8, fps=24, audio_codec='aac')
