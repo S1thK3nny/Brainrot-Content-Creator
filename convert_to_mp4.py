@@ -90,7 +90,7 @@ def to_video(dir):
     final_clip = resize(final_clip, width=1080)  # Maintain original aspect ratio while adjusting width
     
     background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
-    final_clip = CompositeVideoClip([background_clip.set_position(("center", "bottom")), final_clip], use_bgclip=True)
+    final_clip = CompositeVideoClip([background_clip.set_position(("center", "center")), final_clip.set_position(("center", "center"))], use_bgclip=True)
 
     # Merge gameplay and the transparent video clip with the reddit images we created
     final_clip = CompositeVideoClip([add_gameplay(final_clip.duration), final_clip], use_bgclip=True)
