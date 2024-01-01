@@ -159,11 +159,15 @@ def tts(text: str, voice: str = "none", filename: str = "output.mp3", play_sound
                 else:
                     base64_data = str(audio).split('"')[3].split(",")[1]
 
-                if audio_base64_data == "error":
-                    print("This voice is unavailable right now")
-                    return "error"
-            
-                audio_base64_data[index] = base64_data
+                if base64_data == "error":
+                    print(f"Error: Unable to generate audio for text part {index + 1} - '{text_part}'")
+                    audio_base64_data[index] = None
+                    print(f"Text part {index + 1}: {text_part}")
+                    base64_data = str(audio).split('"')[5] if current_endpoint == 0 else str(audio).split('"')[3].split(",")[1]
+                    print(f"Base64 data: {base64_data}")
+
+                else:
+                    audio_base64_data[index] = base64_data
 
             threads = []
             for index, text_part in enumerate(text_parts):
@@ -176,10 +180,20 @@ def tts(text: str, voice: str = "none", filename: str = "output.mp3", play_sound
             for thread in threads:
                 thread.join()
 
+            # Check if any part of the audio data is unavailable
+            if any(data is None for data in audio_base64_data):
+                print("Error: Some parts of the audio data are unavailable")
+                return
+
             # Concatenate the base64 data in the correct order
-            audio_base64_data = "".join(audio_base64_data)
+            audio_base64_data = "".join(audio_base64_data) + '=' * (4 - len(audio_base64_data) % 4) 
             
-        audio_base64_data += "=" * ((4 - len(audio_base64_data) % 4) % 4)  # Add padding ~ S1thK3nny
+        # Check if the length of the base64 string is a multiple of 4
+        # If not, add padding ('=') to the end of the string
+        remainder = len(audio_base64_data) % 4
+        if remainder != 0:
+            audio_base64_data += '=' * (4 - remainder)
+
         save_audio_file(audio_base64_data, filename)
         print(f"Audio file saved successfully as '{filename}'")
         if play_sound:

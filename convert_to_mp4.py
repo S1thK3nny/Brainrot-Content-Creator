@@ -1,7 +1,7 @@
 from moviepy.editor import ImageSequenceClip, ImageClip, AudioFileClip, concatenate_videoclips, ColorClip, CompositeVideoClip, CompositeAudioClip, VideoFileClip
 from moviepy.video.fx.resize import resize
 from moviepy.video.fx.all import crop
-from moviepy.audio.fx.all import audio_loop
+from moviepy.audio.fx.all import audio_loop, volumex
 import os
 import random
 
@@ -70,6 +70,10 @@ def add_bgmusic(final_clip_duration):
     # If the video is longer than the audio, loop the audio
     else:
         bgmusic = audio_loop(bgmusic, duration=final_clip_duration)
+
+    # Reduce the volume of the audio
+    bgmusic = bgmusic.fx(volumex, 0.5)
+
     return bgmusic
 
 def to_video(dir):
