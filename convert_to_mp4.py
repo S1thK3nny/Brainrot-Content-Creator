@@ -113,4 +113,4 @@ def to_video(dir):
     write_info_to_file(dir, list)
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------")
-    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', fps=24, audio_codec='aac')
+    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=8, fps=24, audio_codec='aac')

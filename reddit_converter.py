@@ -1,15 +1,20 @@
 import os
+import random
+import asyncio
 from utils import sprint
 from playwright.async_api import async_playwright, Browser, Page
 
-async def capturePost(page: Page, things_to_say) -> None:
-    page_title = await page.inner_text("h1")  # Grabs the title of the post
-    things_to_say.append(page_title)
-
+async def get_posts_and_dir(page: Page):
     posts = page.locator("shreddit-post")
     op = await posts.get_attribute("author")
     datetime = (await posts.locator("time").get_attribute("datetime")).replace(":", "_")
     dir = os.getcwd() + "/" + op + " - " + datetime
+    return posts, dir
+
+async def capturePost(page: Page, things_to_say) -> None:
+    page_title = await page.inner_text("h1")  # Grabs the title of the post
+    things_to_say.append(page_title)
+    posts, dir = await get_posts_and_dir(page)
     await posts.first.screenshot(path=os.path.join(dir + "/images/post", "post.png"))
     return dir
 
@@ -44,17 +49,45 @@ async def captureComments(page: Page, dir, things_to_say) -> None:
 
     print("--------------------------------------------------\n")
 
-async def capture(browser: Browser, url: str, things_to_say) -> None:
-    page = await browser.new_page()
+async def capture(page, url: str, things_to_say) -> None:
     await page.goto(url)
-    
     dir = await capturePost(page, things_to_say)
     await captureComments(page, dir, things_to_say)
     return dir
 
-async def screenshot_and_convert(reddit_url, things_to_say) -> None:
+
+
+# Needs a rewrite, works for now.
+async def choose_random_askreddit_post(page):
+    subreddit_url = "https://www.reddit.com/r/askreddit/"
+    await page.goto(subreddit_url)
+    locator = page.locator("shreddit-post")
+    posts = await locator.element_handles()
+    random_post = random.choice(posts)
+    post_url = await random_post.get_attribute("content-href")
+    return post_url
+
+async def screenshot_and_convert(page, reddit_url=None, things_to_say=None) -> None:
+    while True:
+        if reddit_url is None:
+            reddit_url = await choose_random_askreddit_post(page)
+        sprint(f"Chosen Reddit URL: {reddit_url}")
+        await page.goto(reddit_url)
+
+        _, dir = await get_posts_and_dir(page)
+        if os.path.exists(dir + "/result.mp4"):
+            sprint(f"{dir} exists already, choosing another post...")
+            reddit_url = None  # Reset reddit_url to choose another post
+        else:
+            dir = await capture(page, reddit_url, things_to_say)
+            break  # Break the loop once a valid post is found
+
+    return dir
+
+async def start_browser_instance(reddit_url, things_to_say):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
-        dir = await capture(browser, reddit_url, things_to_say)
+        page = await browser.new_page()
+        dir = await screenshot_and_convert(page, reddit_url, things_to_say)
         await browser.close()
     return dir
