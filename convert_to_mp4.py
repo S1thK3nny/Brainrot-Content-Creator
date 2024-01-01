@@ -1,5 +1,6 @@
 from moviepy.editor import ImageSequenceClip, ImageClip, AudioFileClip, concatenate_videoclips, ColorClip, CompositeVideoClip, VideoFileClip
 from moviepy.video.fx.resize import resize
+from moviepy.video.fx.all import crop
 import os
 import random
 
@@ -28,7 +29,9 @@ def comments_to_clip(dir):
     return clips
 
 def add_gameplay(final_clip_duration):
-    gameplay = VideoFileClip(str(os.getcwd() + "/resources/gameplay/subway_surfers.mp4"))
+    dir = os.getcwd() + "/resources/gameplay/"
+    videos = sorted(os.listdir(dir))
+    gameplay = VideoFileClip(str(dir + random.choice([video for video in videos])))
     original_duration = gameplay.duration
     
     # Generate random start and end points
@@ -39,7 +42,11 @@ def add_gameplay(final_clip_duration):
     # Trim the original gameplay clip
     gameplay_clip = gameplay.subclip(start_time, end_time)
     gameplay_clip = gameplay_clip.without_audio()
-    gameplay_clip = resize(gameplay_clip, width=1080)
+    
+    # Resize the clip to the desired height and crop the width
+    gameplay_clip = resize(gameplay_clip, height=1920)
+    gameplay_clip = crop(gameplay_clip, x_center=gameplay_clip.w/2, width=1080)  # Crop the width to 1080 from the center
+    
     gameplay_clip = gameplay_clip.set_position(("center", "bottom"))  # Set the position to bottom
     return gameplay_clip
 
