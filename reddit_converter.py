@@ -5,15 +5,15 @@ from playwright.async_api import async_playwright, Page
 
 def get_random_subreddit():
     SUBREDDITS = [
-        'https://www.reddit.com/r/askreddit',
-        'https://www.reddit.com/r/aww',
-        'https://www.reddit.com/r/funny',
-        'https://www.reddit.com/r/gaming',
-      #  'https://www.reddit.com/r/Jokes',
-        'https://www.reddit.com/r/memes',
-        'https://www.reddit.com/r/pics',
-        'https://www.reddit.com/r/Showerthoughts',
-        'https://www.reddit.com/r/todayilearned'
+        'https://www.reddit.com/r/askreddit/',
+        'https://www.reddit.com/r/aww/',
+        'https://www.reddit.com/r/funny/',
+        'https://www.reddit.com/r/gaming/',
+      #  'https://www.reddit.com/r/Jokes/',
+        'https://www.reddit.com/r/memes/',
+        'https://www.reddit.com/r/pics/',
+        'https://www.reddit.com/r/Showerthoughts/',
+        'https://www.reddit.com/r/todayilearned/'
     ]
     subreddit = random.choice([subreddit for subreddit in SUBREDDITS])
     sprint(f"Random Subreddit is {subreddit}")
@@ -33,6 +33,7 @@ async def capturePost(page: Page, things_to_say) -> None:
     await posts.first.screenshot(path=os.path.join(dir + "/images/post", "post.png"))
     return dir
 
+# TODO: Account for 0 comments
 async def captureComments(page: Page, dir, things_to_say) -> None:
     comments = page.locator("shreddit-comment")
     count = await comments.count()
@@ -74,10 +75,11 @@ async def capture(page, url: str, things_to_say) -> None:
 
 
 # Needs a rewrite, works for now.
-async def choose_random_reddit_post(page):
+async def choose_random_reddit_post(page: Page, subreddit: str):
     while True:
-        subreddit_url = get_random_subreddit()
-        await page.goto(subreddit_url)
+        if subreddit is None:
+            subreddit = get_random_subreddit()
+        await page.goto(subreddit)
         locator = page.locator("shreddit-post")
         posts = await locator.element_handles()
         random_post = random.choice(posts)
@@ -85,12 +87,12 @@ async def choose_random_reddit_post(page):
         author = await random_post.get_attribute("author")
         
         if author != "u/AutoModerator":
-            return "https://www.reddit.com" + post_url, subreddit_url
+            return "https://www.reddit.com" + post_url
 
-async def screenshot_and_convert(page, reddit_url=None, things_to_say=None) -> None:
+async def screenshot_and_convert(page: Page, reddit_url=None, subreddit=None, things_to_say=None) -> None:
     while True:
         if reddit_url is None:
-            reddit_url, subreddit_url = await choose_random_reddit_post(page)
+            reddit_url = await choose_random_reddit_post(page, subreddit)
         sprint(f"Chosen Reddit URL: {reddit_url}")
         await page.goto(reddit_url)
 
@@ -102,12 +104,12 @@ async def screenshot_and_convert(page, reddit_url=None, things_to_say=None) -> N
             dir = await capture(page, reddit_url, things_to_say)
             break  # Break the loop once a valid post is found
 
-    return dir, subreddit_url
+    return dir
 
-async def start_browser_instance(reddit_url, things_to_say):
+async def start_browser_instance(reddit_url, subreddit, things_to_say):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
-        dir, subreddit_url = await screenshot_and_convert(page, reddit_url, things_to_say)
+        dir = await screenshot_and_convert(page, reddit_url, subreddit, things_to_say)
         await browser.close()
-    return dir, subreddit_url
+    return dir

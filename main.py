@@ -12,6 +12,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Process Reddit content.')
     parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post. If not provided, a random post will be selected.')
     parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
+    parser.add_argument('-sub', '--subreddit', type=str, default=None, help='Provide a subreddit to get a random post from it (this is overwritten by LINK). If not provided, a random subreddit will be selected.\nExample: "https://www.reddit.com/r/AskReddit/"')
     parser.add_argument("-t", '--tiktok', action='store_true', help='Automatically upload it to TikTok as long as the cookies are present in resources/cookies/')
     parser.add_argument("-y", '--youtube', action='store_true', help='Automatically upload it to YouTube as long as the cookies are present in resources/cookies/')
 
@@ -19,10 +20,10 @@ def parse_arguments():
 
 async def main() -> None:
     args = parse_arguments()
-    dir, subreddit_url = await start_browser_instance(args.link, things_to_say)
+    dir = await start_browser_instance(args.link, args.subreddit, things_to_say)
     save_text_as_mp3(dir, things_to_say)
 
-    title = things_to_say[0] + " " + subreddit_url.replace('https://www.reddit.com/', '') + " #shorts #askreddit #reels #redditrecap #tiktok"
+    title = things_to_say[0] + " #shorts #askreddit #reels #redditrecap #tiktok"
     write_to_info_file(dir, title)
     to_video(dir, args.open)
     save_text(dir, things_to_say)
