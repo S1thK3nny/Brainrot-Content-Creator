@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 from reddit_converter import start_browser_instance
 from tts_saver import save_text_as_mp3
@@ -5,11 +6,17 @@ from convert_to_mp4 import to_video
 
 things_to_say = []
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Process Reddit content.')
+    parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post. If not provided, a random post will be selected.')
+
+    return parser.parse_args()
+
 async def main() -> None:
-    # dir = await start_browser_instance("https://www.reddit.com/r/AskReddit/comments/18w4yp1/how_have_you_almost_died/", things_to_say)
-    dir = await start_browser_instance(None, things_to_say)
+    args = parse_arguments()
+    dir = await start_browser_instance(args.link, things_to_say)
     save_text_as_mp3(dir, things_to_say)
     to_video(dir)
 
 if __name__ == '__main__':
-    asyncio.run(main()) 
+    asyncio.run(main())
