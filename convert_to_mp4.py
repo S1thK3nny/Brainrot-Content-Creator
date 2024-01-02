@@ -111,7 +111,7 @@ def to_video(dir, open_file):
     all_clips = [post_clips] + comment_clips
 
     final_clip = concatenate_videoclips(all_clips, method="compose")
-    final_clip = resize(final_clip, width=1080)  # Maintain original aspect ratio while adjusting width
+    final_clip = resize(final_clip, width=1000)  # Maintain original aspect ratio while adjusting width
     
     background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
 
@@ -126,7 +126,7 @@ def to_video(dir, open_file):
     write_info_to_file(dir, list)
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
-    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None, preset='ultrafast')
+    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None)
     
     if open_file:
         os.startfile(dir + "/result.mp4")
