@@ -37,3 +37,9 @@ def save_text(dir, things_to_say):
                         file.write('\n')
     except Exception as e:
         sprint(f"Error writing to file: {e}")
+
+def check_file_exists(file_path, file_type):
+    if file_path == None or not os.path.isfile(file_path):
+        sprint(f"{file_type} not found!")
+        return False
+    return True

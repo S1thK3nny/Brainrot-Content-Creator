@@ -27,10 +27,11 @@ async def captureComments(page: Page, dir, things_to_say) -> None:
     for i in range(count):
         comment = []
         comment_depth = await comments.nth(i).get_attribute("depth")
+        author = await comments.nth(i).get_attribute("author")
         sprint(f"Comment {i} has a depth of {comment_depth}")
 
         # The int casting is incredibly important!
-        if int(comment_depth) == 0:
+        if int(comment_depth) == 0 and not author=="AutoModerator":
             paragraphs = await comments.nth(i).locator('p').all()
             for p in paragraphs:
                 text = (await p.inner_text()).strip()  # Strip whitespace
