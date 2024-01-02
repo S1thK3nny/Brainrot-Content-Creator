@@ -114,12 +114,11 @@ def to_video(dir, open_file):
     final_clip = resize(final_clip, width=1080)  # Maintain original aspect ratio while adjusting width
     
     background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
-    final_clip = CompositeVideoClip([background_clip.set_position(("center", "center")), final_clip.set_position(("center", "center"))], use_bgclip=True)
 
     list = []
 
     # Merge gameplay and the transparent video clip with the reddit images we created
-    final_clip = CompositeVideoClip([add_gameplay(final_clip.duration, list), final_clip], use_bgclip=True)
+    final_clip = CompositeVideoClip([add_gameplay(final_clip.duration, list), background_clip.set_position(("center", "center")), final_clip.set_position(("center", "center"))], use_bgclip=True)
 
     # Add random background music
     final_clip.audio = CompositeAudioClip([final_clip.audio, add_bgmusic(final_clip.duration, list)])
@@ -127,7 +126,7 @@ def to_video(dir, open_file):
     write_info_to_file(dir, list)
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
-    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None)
+    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None, preset='ultrafast')
     
     if open_file:
         os.startfile(dir + "/result.mp4")
