@@ -5,8 +5,7 @@ from moviepy.audio.fx.all import audio_loop, volumex
 import os
 import random
 import winsound
-from utils import sprint, choose_random_file
-from datetime import datetime
+from utils import sprint, choose_random_file, write_to_info_file
 
 
 # YouTube Shorts are 1080x1920
@@ -100,15 +99,6 @@ def add_bgmusic(final_clip_duration, list):
 
     return bgmusic
 
-def write_info_to_file(dir, list):
-    # Write bgmusic and gameplay information to a text file
-    sprint("Writing gameplay and bgmusic to info.txt!\n")
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    info_filename = f"{dir}/info_{timestamp}.txt"
-    with open(info_filename, 'w') as info_file:
-        info_file.write(list[0] + '\n')
-        info_file.write(list[1] + '\n')
-
 def to_video(dir, open_file):
     print("\n--------------------------------------------------")
     sprint("Starting with the video conversion!\n")
@@ -131,7 +121,9 @@ def to_video(dir, open_file):
     final_clip = CompositeVideoClip([gameplay, background_clip.set_position(("center", "center")), final_clip.set_position(("center", "top"))], use_bgclip=True) # Merge gameplay and the transparent video clip with the reddit images we created
     final_clip.audio = CompositeAudioClip([final_clip.audio, music])
 
-    write_info_to_file(dir, list)
+    sprint("Writing gameplay and bgmusic to info.txt!\n")
+    write_to_info_file(dir, list[0])
+    write_to_info_file(dir, list[1])
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
     final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None)

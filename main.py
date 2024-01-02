@@ -3,7 +3,7 @@ import asyncio
 from reddit_converter import start_browser_instance
 from tts_saver import save_text_as_mp3
 from convert_to_mp4 import to_video
-from utils import save_text
+from utils import save_text, write_to_info_file
 from uploader import upload_tiktok
 
 things_to_say = []
@@ -19,12 +19,16 @@ def parse_arguments():
 
 async def main() -> None:
     args = parse_arguments()
-    dir = await start_browser_instance(args.link, things_to_say)
+    dir, subreddit_url = await start_browser_instance(args.link, things_to_say)
     save_text_as_mp3(dir, things_to_say)
+
+    title = things_to_say[0] + " " + subreddit_url.replace('https://www.reddit.com/', '') + " #shorts #askreddit #reels #redditrecap #tiktok"
+    write_to_info_file(dir, title)
     to_video(dir, args.open)
     save_text(dir, things_to_say)
+
     if args.tiktok:
-        upload_tiktok(dir + "/result.mp4", things_to_say[0])
+        upload_tiktok(dir + "/result.mp4", title)
 
 if __name__ == '__main__':
     asyncio.run(main())

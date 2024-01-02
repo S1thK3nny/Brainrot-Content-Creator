@@ -10,4 +10,4 @@ def upload_tiktok(video, title):
     if not check_file_exists(cookies_dir, "Cookies"):
         return
     
-    upload_video(video, description=title + " #shorts #askreddit #reels #redditrecap #tiktok", cookies=cookies_dir)
+    upload_video(video, description=title, cookies=cookies_dir)

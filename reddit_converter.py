@@ -5,15 +5,15 @@ from playwright.async_api import async_playwright, Page
 
 def get_random_subreddit():
     SUBREDDITS = [
-        'https://www.reddit.com/r/askreddit/',
-        'https://www.reddit.com/r/aww/',
-        'https://www.reddit.com/r/funny/',
-        'https://www.reddit.com/r/gaming/',
-      #  'https://www.reddit.com/r/Jokes/',
-        'https://www.reddit.com/r/memes/',
-        'https://www.reddit.com/r/pics/',
-        'https://www.reddit.com/r/Showerthoughts/',
-        'https://www.reddit.com/r/todayilearned/'
+        'https://www.reddit.com/r/askreddit',
+        'https://www.reddit.com/r/aww',
+        'https://www.reddit.com/r/funny',
+        'https://www.reddit.com/r/gaming',
+      #  'https://www.reddit.com/r/Jokes',
+        'https://www.reddit.com/r/memes',
+        'https://www.reddit.com/r/pics',
+        'https://www.reddit.com/r/Showerthoughts',
+        'https://www.reddit.com/r/todayilearned'
     ]
     subreddit = random.choice([subreddit for subreddit in SUBREDDITS])
     sprint(f"Random Subreddit is {subreddit}")
@@ -85,12 +85,12 @@ async def choose_random_reddit_post(page):
         author = await random_post.get_attribute("author")
         
         if author != "u/AutoModerator":
-            return "https://www.reddit.com" + post_url
+            return "https://www.reddit.com" + post_url, subreddit_url
 
 async def screenshot_and_convert(page, reddit_url=None, things_to_say=None) -> None:
     while True:
         if reddit_url is None:
-            reddit_url = await choose_random_reddit_post(page)
+            reddit_url, subreddit_url = await choose_random_reddit_post(page)
         sprint(f"Chosen Reddit URL: {reddit_url}")
         await page.goto(reddit_url)
 
@@ -102,12 +102,12 @@ async def screenshot_and_convert(page, reddit_url=None, things_to_say=None) -> N
             dir = await capture(page, reddit_url, things_to_say)
             break  # Break the loop once a valid post is found
 
-    return dir
+    return dir, subreddit_url
 
 async def start_browser_instance(reddit_url, things_to_say):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
-        dir = await screenshot_and_convert(page, reddit_url, things_to_say)
+        dir, subreddit_url = await screenshot_and_convert(page, reddit_url, things_to_say)
         await browser.close()
-    return dir
+    return dir, subreddit_url

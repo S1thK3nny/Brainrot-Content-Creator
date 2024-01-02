@@ -15,6 +15,11 @@ def sprint(message):
     print(str)
     return str
 
+def write_to_info_file(dir, text):
+    info_filename = f"{dir}/info.txt"
+    with open(info_filename, 'a', encoding='utf-8') as info_file:
+        info_file.write(strip_special_chars(text) + '\n')
+
 # THIS IS IMPORTANT! Fixes base64 decode error. If an audio file won't save anyway, try it again.
 def strip_special_chars(text: str) -> str:
     printable = set(string.printable)
