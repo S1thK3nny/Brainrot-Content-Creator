@@ -1,8 +1,7 @@
 import os
 import random
-import string
 from tiktokvoice import tts
-from utils import sprint
+from utils import sprint, strip_special_chars
 
 def get_random_voice():
     VOICES = [
@@ -19,11 +18,6 @@ def get_random_voice():
         'en_us_010',                  # English US - Male 4
     ]
     return random.choice([voice for voice in VOICES])
-
-# THIS IS IMPORTANT! Fixes base64 decode error. If an audio file won't save anyway, try it again.
-def strip_special_chars(text: str) -> str:
-    printable = set(string.printable)
-    return ''.join(filter(lambda x: x in printable, text))
 
 def save_text_as_mp3(dir, things_to_say):
     if not os.path.exists(dir + "/audio/"):
