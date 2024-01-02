@@ -1,8 +1,7 @@
 import os
 import random
-import asyncio
 from utils import sprint
-from playwright.async_api import async_playwright, Browser, Page
+from playwright.async_api import async_playwright, Page
 
 async def get_posts_and_dir(page: Page):
     posts = page.locator("shreddit-post")
@@ -42,8 +41,8 @@ async def captureComments(page: Page, dir, things_to_say) -> None:
                     continue
             if comment:  # Check if the comment list is not empty
                 things_to_say.append(comment)
-                file_num += 1
                 await comments.nth(i).screenshot(path=os.path.join(dir + "/images/comments/", f"comment-{file_num}.png"))
+                file_num += 1
         else:
             sprint("Comment " + str(i) + " is not a top comment!")
 

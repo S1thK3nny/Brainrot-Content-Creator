@@ -10,7 +10,7 @@ things_to_say = []
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Process Reddit content.')
     parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post. If not provided, a random post will be selected.')
-    parser.add_argument("-o", '--open', type=bool, default=False, help='Whether you want to open the video after it is done saving or not. False by default.')
+    parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
 
     return parser.parse_args()
 

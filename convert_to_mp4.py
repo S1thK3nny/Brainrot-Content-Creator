@@ -1,4 +1,4 @@
-from moviepy.editor import ImageSequenceClip, ImageClip, AudioFileClip, concatenate_videoclips, ColorClip, CompositeVideoClip, CompositeAudioClip, VideoFileClip
+from moviepy.editor import ImageSequenceClip, ImageClip, AudioFileClip, concatenate_videoclips, concatenate_audioclips, ColorClip, CompositeVideoClip, CompositeAudioClip, VideoFileClip
 from moviepy.video.fx.resize import resize
 from moviepy.video.fx.all import crop
 from moviepy.audio.fx.all import audio_loop, volumex
@@ -23,8 +23,8 @@ def post_to_clip(dir):
     return img_clip, audio_clip.duration
 
 def comments_to_clip(dir, post_clip_audio_duration):
-    images_directory = dir + "/images/comments/"
-    audio_directory = dir + "/audio/comments/"
+    images_directory = os.path.join(dir, "images/comments/")
+    audio_directory = os.path.join(dir, "audio/comments/")
 
     images = sorted(os.listdir(images_directory))
     audio_files = sorted(os.listdir(audio_directory))
@@ -32,22 +32,29 @@ def comments_to_clip(dir, post_clip_audio_duration):
     total_duration = post_clip_audio_duration
     clips = []
 
-    for audio in audio_files:
-        idx = int(audio.split('_')[0].replace('comment', ''))
-        audio_clip = AudioFileClip(os.path.join(audio_directory, audio))
-        img_clip = ImageSequenceClip([os.path.join(images_directory, images[idx])], durations=[audio_clip.duration])
+    for image in images:
+        image_id = int(image.split('-')[1].split('.')[0])
 
-        # Check if adding the current comment exceeds the maximum duration
-        # TODO: Make sure it doesnt stop randomly somewhere in the image if it is too long.
-        if total_duration + audio_clip.duration > 60:
-            break
+        audio_clips_for_image = [audio for audio in audio_files if audio.startswith(f"comment-{image_id}_")]
 
-        img_clip = img_clip.set_audio(audio_clip)
+        if not audio_clips_for_image:
+            sprint(f"Image: {image}, Image ID: {image_id}")
+            sprint(f"No audio clips found for image {image}. Skipping.")
+            continue
+
+        combined_audio = concatenate_audioclips([AudioFileClip(os.path.join(audio_directory, audio)) for audio in audio_clips_for_image])
+
+        # Check if this comment/image and its audio will make our short longer than a minute
+        if total_duration + combined_audio.duration >= 60:
+            continue
+
+        img_clip = ImageSequenceClip([os.path.join(images_directory, image)], durations=[combined_audio.duration])
+        img_clip = img_clip.set_audio(combined_audio)
+
         clips.append(img_clip)
-        total_duration += audio_clip.duration
+        total_duration += combined_audio.duration
 
     return clips
-
 
 def add_gameplay(final_clip_duration, list):
     # Choose random gameplay from the given resources
@@ -89,7 +96,7 @@ def add_bgmusic(final_clip_duration, list):
         bgmusic = audio_loop(bgmusic, duration=final_clip_duration)
 
     # Reduce the volume of the audio
-    bgmusic = bgmusic.fx(volumex, 0.2)
+    bgmusic = bgmusic.fx(volumex, 0.1)
 
     return bgmusic
 

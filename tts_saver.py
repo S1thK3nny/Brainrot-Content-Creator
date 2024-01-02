@@ -33,8 +33,8 @@ def save_text_as_mp3(dir, things_to_say):
             tts(strip_special_chars(things_to_say[i]), get_random_voice(), post_dir, False)
         else:
             for j in range(len(things_to_say[i])):
-                comment_dir = dir + "/audio/comments/" + f"comment{i-1}_{j}.mp3"
+                comment_dir = dir + "/audio/comments/" + f"comment-{i-1}_{j}.mp3"
                 if os.path.exists(comment_dir):
-                    sprint(f"comment{i-1}_{j}.mp3 exists, skipping...")
+                    sprint(f"comment-{i-1}_{j}.mp3 exists, skipping...")
                     continue
                 tts(strip_special_chars(things_to_say[i][j]), get_random_voice(), comment_dir, False)
