@@ -7,7 +7,7 @@ async def get_posts_and_dir(page: Page):
     posts = page.locator("shreddit-post")
     op = await posts.get_attribute("author")
     datetime = (await posts.locator("time").get_attribute("datetime")).replace(":", "_")
-    dir = os.getcwd() + "/" + op + " - " + datetime
+    dir = os.getcwd() + "/CONVERTED/" + op + " - " + datetime
     return posts, dir
 
 async def capturePost(page: Page, things_to_say) -> None:
