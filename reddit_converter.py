@@ -3,6 +3,22 @@ import random
 from utils import sprint
 from playwright.async_api import async_playwright, Page
 
+def get_random_subreddit():
+    SUBREDDITS = [
+        'https://www.reddit.com/r/askreddit/',
+        'https://www.reddit.com/r/aww/',
+        'https://www.reddit.com/r/funny/',
+        'https://www.reddit.com/r/gaming/',
+      #  'https://www.reddit.com/r/Jokes/',
+        'https://www.reddit.com/r/memes/',
+        'https://www.reddit.com/r/pics/',
+        'https://www.reddit.com/r/Showerthoughts/',
+        'https://www.reddit.com/r/todayilearned/'
+    ]
+    subreddit = random.choice([subreddit for subreddit in SUBREDDITS])
+    sprint(f"Random Subreddit is {subreddit}")
+    return subreddit
+
 async def get_posts_and_dir(page: Page):
     posts = page.locator("shreddit-post")
     op = await posts.get_attribute("author")
@@ -58,19 +74,23 @@ async def capture(page, url: str, things_to_say) -> None:
 
 
 # Needs a rewrite, works for now.
-async def choose_random_askreddit_post(page):
-    subreddit_url = "https://www.reddit.com/r/askreddit/"
-    await page.goto(subreddit_url)
-    locator = page.locator("shreddit-post")
-    posts = await locator.element_handles()
-    random_post = random.choice(posts)
-    post_url = await random_post.get_attribute("content-href")
-    return post_url
+async def choose_random_reddit_post(page):
+    while True:
+        subreddit_url = get_random_subreddit()
+        await page.goto(subreddit_url)
+        locator = page.locator("shreddit-post")
+        posts = await locator.element_handles()
+        random_post = random.choice(posts)
+        post_url = await random_post.get_attribute("permalink")
+        author = await random_post.get_attribute("author")
+        
+        if author != "u/AutoModerator":
+            return "https://www.reddit.com" + post_url
 
 async def screenshot_and_convert(page, reddit_url=None, things_to_say=None) -> None:
     while True:
         if reddit_url is None:
-            reddit_url = await choose_random_askreddit_post(page)
+            reddit_url = await choose_random_reddit_post(page)
         sprint(f"Chosen Reddit URL: {reddit_url}")
         await page.goto(reddit_url)
 
