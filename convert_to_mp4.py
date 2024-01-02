@@ -4,22 +4,20 @@ from moviepy.video.fx.all import crop
 from moviepy.audio.fx.all import audio_loop, volumex
 import os
 import random
-from utils import sprint
+import winsound
+from utils import sprint, choose_random_file
 from datetime import datetime
 
 
 # YouTube Shorts are 1080x1920
 
 
-def choose_random_file(dir):
-    files = sorted(os.listdir(dir))
-    return str(dir + random.choice([file for file in files]))
-
 def post_to_clip(dir):
     # The post stuff will always be called post.mp3 and post.png, so let us simply turn it into an imageclip.
     audio_clip = AudioFileClip(dir + "/audio/post/post.mp3")
     img_clip = ImageClip(dir + "/images/post/post.png", duration=audio_clip.duration)
     img_clip = img_clip.set_audio(audio_clip)
+
     return img_clip, audio_clip.duration
 
 def comments_to_clip(dir, post_clip_audio_duration):
@@ -46,6 +44,7 @@ def comments_to_clip(dir, post_clip_audio_duration):
 
         # Check if this comment/image and its audio will make our short longer than a minute
         if total_duration + combined_audio.duration >= 60:
+            sprint(f"Skipping Image {image} due to length...")
             continue
 
         img_clip = ImageSequenceClip([os.path.join(images_directory, image)], durations=[combined_audio.duration])
@@ -80,6 +79,7 @@ def add_gameplay(final_clip_duration, list):
         gameplay_clip = resize(gameplay_clip, (1080,1920))
     
     gameplay_clip = gameplay_clip.set_position(("center", "bottom"))  # Set the position to bottom
+
     return gameplay_clip
 
 def add_bgmusic(final_clip_duration, list):
@@ -118,22 +118,24 @@ def to_video(dir, open_file):
     all_clips = [post_clips] + comment_clips
 
     final_clip = concatenate_videoclips(all_clips, method="compose")
-    final_clip = resize(final_clip, width=1000)  # Maintain original aspect ratio while adjusting width
+    # NOTE : Width is 1060 instead of 1080 to leave just a little space at the sides
+    final_clip = resize(final_clip, width=1060)  # Maintain original aspect ratio while adjusting width
     
     background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
 
     list = []
 
-    # Merge gameplay and the transparent video clip with the reddit images we created
-    final_clip = CompositeVideoClip([add_gameplay(final_clip.duration, list), background_clip.set_position(("center", "center")), final_clip.set_position(("center", "center"))], use_bgclip=True)
+    gameplay = add_gameplay(final_clip.duration, list)
+    music = add_bgmusic(final_clip.duration, list)
 
-    # Add random background music
-    final_clip.audio = CompositeAudioClip([final_clip.audio, add_bgmusic(final_clip.duration, list)])
+    final_clip = CompositeVideoClip([gameplay, background_clip.set_position(("center", "center")), final_clip.set_position(("center", "top"))], use_bgclip=True) # Merge gameplay and the transparent video clip with the reddit images we created
+    final_clip.audio = CompositeAudioClip([final_clip.audio, music])
 
     write_info_to_file(dir, list)
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
     final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None)
-    
+    winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
+
     if open_file:
         os.startfile(dir + "/result.mp4")

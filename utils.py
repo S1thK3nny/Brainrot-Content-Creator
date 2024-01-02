@@ -1,6 +1,7 @@
 import os
 import inspect
 import string
+import random
 
 # Source Print - Not my best name, eh?
 def sprint(message):
@@ -18,6 +19,10 @@ def sprint(message):
 def strip_special_chars(text: str) -> str:
     printable = set(string.printable)
     return ''.join(filter(lambda x: x in printable, text))
+
+def choose_random_file(dir):
+    files = sorted(os.listdir(dir))
+    return str(dir + random.choice([file for file in files]))
 
 def save_text(dir, things_to_say):
     try:
