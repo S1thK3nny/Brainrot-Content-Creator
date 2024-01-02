@@ -20,23 +20,34 @@ def post_to_clip(dir):
     audio_clip = AudioFileClip(dir + "/audio/post/post.mp3")
     img_clip = ImageClip(dir + "/images/post/post.png", duration=audio_clip.duration)
     img_clip = img_clip.set_audio(audio_clip)
-    return img_clip
+    return img_clip, audio_clip.duration
 
-def comments_to_clip(dir):
+def comments_to_clip(dir, post_clip_audio_duration):
     images_directory = dir + "/images/comments/"
     audio_directory = dir + "/audio/comments/"
 
     images = sorted(os.listdir(images_directory))
     audio_files = sorted(os.listdir(audio_directory))
 
+    total_duration = post_clip_audio_duration
     clips = []
+
     for audio in audio_files:
         idx = int(audio.split('_')[0].replace('comment', ''))
         audio_clip = AudioFileClip(os.path.join(audio_directory, audio))
         img_clip = ImageSequenceClip([os.path.join(images_directory, images[idx])], durations=[audio_clip.duration])
+
+        # Check if adding the current comment exceeds the maximum duration
+        # TODO: Make sure it doesnt stop randomly somewhere in the image if it is too long.
+        if total_duration + audio_clip.duration > 60:
+            break
+
         img_clip = img_clip.set_audio(audio_clip)
         clips.append(img_clip)
+        total_duration += audio_clip.duration
+
     return clips
+
 
 def add_gameplay(final_clip_duration, list):
     # Choose random gameplay from the given resources
@@ -91,12 +102,12 @@ def write_info_to_file(dir, list):
         info_file.write(list[0] + '\n')
         info_file.write(list[1] + '\n')
 
-def to_video(dir):
+def to_video(dir, open_file):
     print("\n--------------------------------------------------")
     sprint("Starting with the video conversion!\n")
 
-    post_clips = post_to_clip(dir)
-    comment_clips = comments_to_clip(dir)
+    post_clips, post_clip_audio_duration = post_to_clip(dir)
+    comment_clips = comments_to_clip(dir, post_clip_audio_duration)
     all_clips = [post_clips] + comment_clips
 
     final_clip = concatenate_videoclips(all_clips, method="compose")
@@ -116,4 +127,7 @@ def to_video(dir):
     write_info_to_file(dir, list)
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
-    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=8, fps=24, audio_codec='aac')
+    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None)
+    
+    if open_file:
+        os.startfile(dir + "/result.mp4")
