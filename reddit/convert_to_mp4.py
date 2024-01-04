@@ -126,7 +126,7 @@ def to_video(dir, open_file):
     write_to_info_file(dir, list[1])
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
-    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None)
+    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None, remove_temp=True)
     winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
 
     if open_file:
