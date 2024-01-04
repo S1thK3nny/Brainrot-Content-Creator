@@ -65,7 +65,7 @@ def initialize_editing(dir, open_when_done, language):
 
         # Part 2 fix for when CompositeVideoClip somehow screws up the duration. Why? I don't know. How? I don't know.
         final_video.duration = clip.duration
-        
+
         final_video.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', remove_temp=True)
         winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
 
@@ -80,5 +80,5 @@ def initialize_editing(dir, open_when_done, language):
     if os.path.isfile(generated_audio):
         os.remove(generated_audio)
 
-    # if os.path.isfile(existing_clip):
-        # os.remove(existing_clip)
+    if os.path.isfile(existing_clip):
+        os.remove(existing_clip)
