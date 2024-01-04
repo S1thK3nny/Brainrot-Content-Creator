@@ -2,6 +2,7 @@ import os
 import inspect
 import string
 import random
+import re
 
 # Source Print - Not my best name, eh?
 def sprint(message):
@@ -14,6 +15,19 @@ def sprint(message):
     str = prefix + " - " + message
     print(str)
     return str
+
+def title_to_folder_name(title):
+    # List of characters that are not allowed in Windows folder names
+    invalid_chars = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"]
+    
+    # Replace each invalid character with an underscore
+    for char in invalid_chars:
+        title = title.replace(char, "_")
+    
+    # Remove leading or trailing periods
+    title = re.sub(r'^\.+|\.+$', '', title)
+    
+    return title
 
 def write_to_info_file(dir, text):
     info_filename = f"{dir}/info.txt"

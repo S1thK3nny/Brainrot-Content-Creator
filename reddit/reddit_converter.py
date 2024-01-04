@@ -1,5 +1,6 @@
 import os
 import random
+import re
 from utils import sprint
 from playwright.async_api import async_playwright, Page
 
@@ -23,7 +24,7 @@ async def get_posts_and_dir(page: Page):
     posts = page.locator("shreddit-post")
     op = await posts.get_attribute("author")
     datetime = (await posts.locator("time").get_attribute("datetime")).replace(":", "_")
-    dir = os.getcwd() + "/CONVERTED/" + op + " - " + datetime
+    dir = os.getcwd() + "/FINISHED/Reddit/" + op + " - " + datetime
     return posts, dir
 
 async def capturePost(page: Page, things_to_say) -> None:
@@ -85,8 +86,10 @@ async def choose_random_reddit_post(page: Page, subreddit: str):
         random_post = random.choice(posts)
         post_url = await random_post.get_attribute("permalink")
         author = await random_post.get_attribute("author")
+
+        sprint(author)
         
-        if author != "u/AutoModerator":
+        if not re.findall(r'(?i)mod', author):
             return "https://www.reddit.com" + post_url
 
 async def screenshot_and_convert(page: Page, reddit_url=None, subreddit=None, things_to_say=None) -> None:
@@ -106,7 +109,7 @@ async def screenshot_and_convert(page: Page, reddit_url=None, subreddit=None, th
 
     return dir
 
-async def start_browser_instance(reddit_url, subreddit, things_to_say):
+async def start_browser_instance_reddit(reddit_url, subreddit, things_to_say):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()

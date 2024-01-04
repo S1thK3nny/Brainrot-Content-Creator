@@ -54,7 +54,7 @@ def comments_to_clip(dir, post_clip_audio_duration):
 
     return clips
 
-def add_gameplay(final_clip_duration, list):
+def add_gameplay(final_clip_duration, list, height):
     # Choose random gameplay from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/gameplay/")
     list.append(sprint(f"chosen gameplay is {rndfile}")) # Don't just print which gameplay file is chosen, but also save the print
@@ -71,11 +71,11 @@ def add_gameplay(final_clip_duration, list):
     gameplay_clip = gameplay_clip.without_audio()
     
     # Resize the clip to the desired height and crop the width
-    gameplay_clip = resize(gameplay_clip, height=1920)
+    gameplay_clip = resize(gameplay_clip, height=height)
     if gameplay_clip.w >= 1080:
         gameplay_clip = crop(gameplay_clip, x_center=gameplay_clip.w/2, width=1080)  # Crop the width to 1080 from the center
     else:
-        gameplay_clip = resize(gameplay_clip, (1080,1920))
+        gameplay_clip = resize(gameplay_clip, (1080,height))
     
     gameplay_clip = gameplay_clip.set_position(("center", "bottom"))  # Set the position to bottom
 
@@ -115,7 +115,7 @@ def to_video(dir, open_file):
 
     list = []
 
-    gameplay = add_gameplay(final_clip.duration, list)
+    gameplay = add_gameplay(final_clip.duration, list, 1920)
     music = add_bgmusic(final_clip.duration, list)
 
     final_clip = CompositeVideoClip([gameplay, background_clip.set_position(("center", "center")), final_clip.set_position(("center", "top"))], use_bgclip=True) # Merge gameplay and the transparent video clip with the reddit images we created

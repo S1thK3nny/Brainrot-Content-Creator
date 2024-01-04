@@ -1,6 +1,6 @@
 import os
 import random
-from tiktokvoice import tts
+from reddit.tiktokvoice import tts
 from utils import sprint, strip_special_chars
 
 def get_random_voice():
