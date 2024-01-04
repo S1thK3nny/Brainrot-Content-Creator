@@ -8,7 +8,7 @@ link_7days = "https://streamscharts.com/clips?language="
 link_today = "https://streamscharts.com/clips?time=today&language="
 
 async def choose_random_clip(page: Page, language: str):
-    page.set_default_timeout(5000)
+    page.set_default_timeout(3000)
     await page.goto(link_7days + language)
     sprint("No url given, choosing random clip!")
 
@@ -27,6 +27,7 @@ async def choose_random_clip(page: Page, language: str):
     return newURL
 
 async def createDir(page: Page):
+    page.set_default_timeout(3000)
     try:
         iframe = page.frame_locator('.ratio_container-inner')
         element1 = iframe.locator('xpath=/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div/div[2]/div/p[1]/a[1]')

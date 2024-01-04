@@ -47,9 +47,7 @@ async def main() -> None:
         'Twitch': handle_twitch
     }
 
-    # Check if the mode exists in the dictionary
     if args.mode in modes:
-        # If it does, call the corresponding function
         await modes[args.mode](args)
     else:
         raise Exception("You provided no proper mode, man!")
