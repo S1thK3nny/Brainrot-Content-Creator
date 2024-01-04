@@ -3,7 +3,7 @@ import whisper_timestamped
 from moviepy.video.fx.resize import resize
 from moviepy.video.fx.all import crop
 from reddit.convert_to_mp4 import add_gameplay, add_bgmusic
-from utils import sprint
+import time
 import winsound
 import os
 
@@ -15,7 +15,6 @@ def generate_subtitles(dir, language: str):
     model = whisper_timestamped.load_model('base')
     whisper_timestamped.DecodingOptions(language=language, fp16='false')
 
-    # Specify the video file
     video = mp.VideoFileClip(existing_clip)
 
     # Extract audio from the video
@@ -48,12 +47,11 @@ def generate_subtitles(dir, language: str):
     
     final_video = final_video.set_position(("center", "bottom"))  # Set the position to bottom
 
-    return final_video, generated_audio, existing_clip
+    return final_video, generated_audio, existing_clip, video
 
-# TODO: Fix bug that lets you not remove existing_clip.
 def initialize_editing(dir, open_when_done, language):
     list = []
-    clip, generated_audio, existing_clip = generate_subtitles(dir, language)
+    clip, generated_audio, existing_clip, vid = generate_subtitles(dir, language)
     gameplay = add_gameplay(clip.duration, list, 960)
     bgmusic = add_bgmusic(clip.duration, list)
     final_video = mp.ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=clip.duration)  # Add alpha channel for transparency
@@ -75,6 +73,7 @@ def initialize_editing(dir, open_when_done, language):
     finally:
         # Close the video clip objects to release resources
         clip.close()
+        vid.close()
         final_video.close()
 
     if os.path.isfile(generated_audio):

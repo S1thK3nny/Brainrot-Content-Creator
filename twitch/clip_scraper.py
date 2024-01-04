@@ -26,9 +26,11 @@ async def choose_random_clip(page: Page, language: str):
 
     return newURL
 
+# TODO: Find a better solution
 async def createDir(page: Page):
-    page.set_default_timeout(3000)
+    page.set_default_timeout(5000)
     try:
+        await page.wait_for_selector('.ratio_container-inner')
         iframe = page.frame_locator('.ratio_container-inner')
         element1 = iframe.locator('xpath=/html/body/div[1]/div/div[1]/div/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div/div[2]/div/p[1]/a[1]')
         streamer = await element1.inner_text()
