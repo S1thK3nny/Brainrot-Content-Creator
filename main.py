@@ -15,7 +15,7 @@ things_to_say = []
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Process Reddit or Streamscharts content.')
-    parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=['Reddit', 'Twitch'], help="'Reddit' or 'Twitch', depending on what kind of video you need. Default is Reddit")
+    parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=['Reddit', 'Twitch'], help="Choose the mod, depending on what kind of video you need. Default is Reddit")
     parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post or Streamscharts clip. If not provided, a random one will be selected.')
     parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
 
