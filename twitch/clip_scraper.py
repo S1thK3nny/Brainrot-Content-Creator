@@ -27,7 +27,7 @@ async def choose_random_clip(page: Page, language: str):
     return newURL
 
 # TODO: Find a better solution
-async def createDir(page: Page):
+async def createDir(page: Page, language: str):
     page.set_default_timeout(5000)
     try:
         await page.wait_for_selector('.ratio_container-inner')
@@ -39,7 +39,7 @@ async def createDir(page: Page):
         title = await element2.inner_text()
         sprint(f"Streamer: {streamer}\tTitle: {title}")
 
-        dir = os.path.join(os.getcwd(), "FINISHED", "Twitch", title_to_folder_name(title + " - " + streamer))
+        dir = os.path.join(os.getcwd(), "FINISHED", "Twitch", language, title_to_folder_name(title + " - " + streamer))
         os.makedirs(dir, exist_ok=True)
         return dir
 
@@ -55,12 +55,12 @@ async def initialize_scraping(page: Page, clip_url: str, language: str):
         sprint(f"Chosen Clip: {clip_url}")
         await page.goto(clip_url)
 
-        dir = await createDir(page)
+        dir = await createDir(page, language)
 
         if dir is None:
             return None
         
-        if os.path.exists(dir + "/final_video_with_subtitles.mp4"):
+        if os.path.exists(dir + "/result.mp4"):
                 sprint(f"{dir} exists already, choosing another post...")
                 clip_url = None  # Reset clip_url to choose another post
         else:

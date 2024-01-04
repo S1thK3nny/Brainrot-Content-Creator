@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+from gooey import Gooey
 
 from reddit.reddit_converter import start_browser_instance_reddit
 from reddit.tts_saver import save_text_as_mp3
@@ -11,6 +12,8 @@ from twitch.clip_editing import initialize_editing
 from utils import save_text, write_to_info_file
 from uploader import upload_tiktok
 
+from whisper_timestamped import tokenizer
+
 things_to_say = []
 
 def parse_arguments():
@@ -20,7 +23,7 @@ def parse_arguments():
     parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
 
     parser.add_argument('-sub', '--subreddit', type=str, default=None, help='Provide a subreddit to get a random post from it (this is overwritten by LINK). If not provided, a random subreddit will be selected.\nExample: "https://www.reddit.com/r/AskReddit/"')
-    parser.add_argument("-lang", '--language', type=str, default='en', help='The language of the Twitch clip you want. Default is en')
+    parser.add_argument("-lang", '--language', type=str, default='en', choices=tokenizer.LANGUAGES, help='The language of the Twitch clip you want. Default is en')
 
     # parser.add_argument("-t", '--tiktok', action='store_true', help='Automatically upload it to TikTok as long as the cookies are present in resources/cookies/')
     # parser.add_argument("-y", '--youtube', action='store_true', help='Automatically upload it to YouTube as long as the cookies are present in resources/cookies/')
@@ -41,9 +44,10 @@ async def handle_twitch(args) -> None:
 
 
 
+@Gooey
 async def main() -> None:
     args = parse_arguments()
-    
+
     modes = {
         'Reddit': handle_reddit,
         'Twitch': handle_twitch
