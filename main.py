@@ -14,8 +14,8 @@ from uploader import upload_tiktok
 things_to_say = []
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Process Reddit content.')
-    parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=['Reddit', 'Twitch'], help="'Reddit' or 'Twitch', depending on what kind of video you need.")
+    parser = argparse.ArgumentParser(description='Process Reddit or Streamscharts content.')
+    parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=['Reddit', 'Twitch'], help="'Reddit' or 'Twitch', depending on what kind of video you need. Default is Reddit")
     parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post or Streamscharts clip. If not provided, a random one will be selected.')
     parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
 
@@ -39,6 +39,8 @@ async def handle_twitch(args) -> None:
     dir = await start_browser_instance_twitch(args.link, args.language)
     initialize_editing(dir, args.open, args.language)
 
+
+
 async def main() -> None:
     args = parse_arguments()
     
@@ -47,10 +49,7 @@ async def main() -> None:
         'Twitch': handle_twitch
     }
 
-    if args.mode in modes:
-        await modes[args.mode](args)
-    else:
-        raise Exception("You provided no proper mode, man!")
+    await modes[args.mode](args)
 
     # if args.tiktok:
     #    upload_tiktok(dir + "/result.mp4", title)
