@@ -18,7 +18,7 @@ things_to_say = []
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Process Reddit or Streamscharts content to create Shorts for TikTok and YT-Shorts.')
-    parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=['Reddit', 'Twitch'], help="Choose the mode, depending on what kind of video you need. Default is Reddit")
+    parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=modes.keys(), help="Choose the mode, depending on what kind of video you need. Default is Reddit")
     parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post or Streamscharts clip. If not provided, a random one will be selected.')
     parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
 
@@ -44,6 +44,11 @@ async def handle_twitch(args) -> None:
 
 
 
+modes = {
+    'Reddit': handle_reddit,
+    'Twitch': handle_twitch
+}
+
 @Gooey(
         program_name = "Brainrot Content Creator",
         clear_before_run = True,
@@ -51,11 +56,6 @@ async def handle_twitch(args) -> None:
 )
 async def main() -> None:
     args = parse_arguments()
-
-    modes = {
-        'Reddit': handle_reddit,
-        'Twitch': handle_twitch
-    }
 
     await modes[args.mode](args)
 
