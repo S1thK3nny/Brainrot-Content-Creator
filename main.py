@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import os
 from gooey import Gooey
 
 from reddit.reddit_converter import start_browser_instance_reddit
@@ -17,7 +18,7 @@ from whisper_timestamped import tokenizer
 things_to_say = []
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Process Reddit or Streamscharts content to create Shorts for TikTok and YT-Shorts.')
+    parser = argparse.ArgumentParser(description='Brain Rot Content Creator - Process Reddit or Streamscharts content to create Shorts for TikTok and YT-Shorts.')
     parser.add_argument('-m', '--mode', type=str, default='Reddit', choices=modes.keys(), help="Choose the mode, depending on what kind of video you need. Default is Reddit")
     parser.add_argument('-l', '--link', type=str, default=None, help='URL of the Reddit post or Streamscharts clip. If not provided, a random one will be selected.')
     parser.add_argument("-o", '--open', action='store_true', help='Whether you want to open the video after it is done saving or not. False by default.')
@@ -50,7 +51,8 @@ modes = {
 }
 
 @Gooey(
-        program_name = "Brainrot Content Creator",
+        program_name = "BRCC",
+        image_dir = os.getcwd() + "\images", #Screw their built in local path, it doesn't work. This, however, does!
         clear_before_run = True,
         default_size = (650, 580),
 )

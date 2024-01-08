@@ -14,7 +14,8 @@ def get_random_subreddit():
         'https://www.reddit.com/r/memes/',
         'https://www.reddit.com/r/pics/',
         'https://www.reddit.com/r/Showerthoughts/',
-        'https://www.reddit.com/r/todayilearned/'
+        'https://www.reddit.com/r/todayilearned/',
+        'https://www.reddit.com/r/popular/hot/?geo_filter=global'
     ]
     subreddit = random.choice([subreddit for subreddit in SUBREDDITS])
     sprint(f"Random Subreddit is {subreddit}")

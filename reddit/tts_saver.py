@@ -20,6 +20,7 @@ def get_random_voice():
     return random.choice([voice for voice in VOICES])
 
 def save_text_as_mp3(dir, things_to_say):
+    print("\n--------------------------------------------------")
     if not os.path.exists(dir + "/audio/"):
         os.makedirs(dir + "/audio/")
         os.makedirs(dir + "/audio/post/")
@@ -38,3 +39,4 @@ def save_text_as_mp3(dir, things_to_say):
                     sprint(f"comment-{i-1}_{j}.mp3 exists, skipping...")
                     continue
                 tts(strip_special_chars(things_to_say[i][j]), get_random_voice(), comment_dir, False)
+    print("--------------------------------------------------\n")

@@ -72,7 +72,7 @@ async def initialize_scraping(page: Page, clip_url: str, language: str):
             break  # Break the loop once a valid post is found
     return dir
 
-async def start_browser_instance_twitch(clip_url: str, language: str):
+async def start_actual_browser_instance_twitch(clip_url: str, language: str):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         page = await browser.new_page()
@@ -81,7 +81,13 @@ async def start_browser_instance_twitch(clip_url: str, language: str):
         if dir is None:
             # Restart the browser instance
             await browser.close()
-            return await start_browser_instance_twitch(clip_url, language)
+            return await start_actual_browser_instance_twitch(clip_url, language)
 
         await browser.close()
+    return dir
+
+async def start_browser_instance_twitch(clip_url: str, language: str):
+    print("\n--------------------------------------------------")
+    dir = await start_actual_browser_instance_twitch(clip_url=clip_url, language=language)
+    print("--------------------------------------------------\n")
     return dir

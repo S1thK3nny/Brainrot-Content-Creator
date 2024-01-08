@@ -18,7 +18,7 @@ def generate_subtitles(dir, language: str):
     video = mp.VideoFileClip(existing_clip)
 
     # Extract audio from the video
-    video.audio.write_audiofile(generated_audio)
+    video.audio.write_audiofile(generated_audio, logger=None)
     result = whisper_timestamped.transcribe(model, generated_audio)
 
     # Generate and add subtitles
@@ -50,6 +50,7 @@ def generate_subtitles(dir, language: str):
     return final_video, generated_audio, existing_clip, video
 
 def initialize_editing(dir, open_when_done, language):
+    print("\n--------------------------------------------------")
     list = []
     clip, generated_audio, existing_clip, vid = generate_subtitles(dir, language)
     gameplay = add_gameplay(clip.duration, list, 960)
@@ -64,7 +65,7 @@ def initialize_editing(dir, open_when_done, language):
         # Part 2 fix for when CompositeVideoClip somehow screws up the duration. Why? I don't know. How? I don't know.
         final_video.duration = clip.duration
 
-        final_video.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', remove_temp=True)
+        final_video.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', remove_temp=True, logger=None)
         winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
 
         if open_when_done:
@@ -81,3 +82,4 @@ def initialize_editing(dir, open_when_done, language):
 
     if os.path.isfile(existing_clip):
         os.remove(existing_clip)
+    print("--------------------------------------------------\n")
