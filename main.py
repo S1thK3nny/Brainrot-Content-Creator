@@ -34,15 +34,21 @@ async def handle_reddit(args) -> None:
     dir = await start_browser_instance_reddit(args.link, args.subreddit, things_to_say)
     save_text_as_mp3(dir, things_to_say)
 
-    title = things_to_say[0] + " #shorts #askreddit #reels #redditrecap #tiktok"
+    title = things_to_say[0] + " #tiktok #shorts #funny #funnyvideos #funnyvideo #meme #memes #memestiktok #memestiktok😂😂 #edutok #edutokmotivation #lifechange #reddit #redditstories #fyp #fypシ #fy"
     write_to_info_file(dir, title)
     to_video(dir, args.open)
     save_text(dir, things_to_say)
+    return dir, title
 
 async def handle_twitch(args) -> None:
     dir = await start_browser_instance_twitch(args.link, args.language)
     initialize_editing(dir, args.open, args.language)
 
+    with open('info.txt', 'r') as file:
+        title = file.read()
+
+    title = title + " #tiktok #shorts #funny #funnyvideos #funnyvideo #meme #memes #memestiktok #memestiktok😂😂 #edutok #edutokmotivation #lifechange #reddit #redditstories #fyp #fypシ #fy"
+    return dir, title
 
 
 modes = {
@@ -59,7 +65,7 @@ modes = {
 async def main() -> None:
     args = parse_arguments()
 
-    await modes[args.mode](args)
+    dir, title = await modes[args.mode](args)
 
     # if args.tiktok:
     #    upload_tiktok(dir + "/result.mp4", title)

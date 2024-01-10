@@ -1,7 +1,7 @@
 import os
 import httpx
 import random
-from utils import sprint, title_to_folder_name
+from utils import sprint, title_to_folder_name, write_to_info_file
 from playwright.async_api import async_playwright, Page
 
 link_7days = "https://streamscharts.com/clips?language="
@@ -40,6 +40,7 @@ async def createDir(page: Page, language: str):
         sprint(f"Streamer: {streamer}\tTitle: {title}")
 
         dir = os.path.join(os.getcwd(), "FINISHED", "Twitch", language, title_to_folder_name(title + " - " + streamer))
+        write_to_info_file(dir, title)
         os.makedirs(dir, exist_ok=True)
         return dir
 
