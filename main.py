@@ -44,7 +44,7 @@ async def handle_twitch(args) -> None:
     dir = await start_browser_instance_twitch(args.link, args.language)
     initialize_editing(dir, args.open, args.language)
 
-    with open('info.txt', 'r') as file:
+    with open(dir + 'info.txt', 'r') as file:
         title = file.read()
 
     title = title + " #tiktok #shorts #funny #funnyvideos #funnyvideo #meme #memes #memestiktok #memestiktok😂😂 #edutok #edutokmotivation #lifechange #reddit #redditstories #fyp #fypシ #fy"

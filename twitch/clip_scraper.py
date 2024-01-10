@@ -40,8 +40,8 @@ async def createDir(page: Page, language: str):
         sprint(f"Streamer: {streamer}\tTitle: {title}")
 
         dir = os.path.join(os.getcwd(), "FINISHED", "Twitch", language, title_to_folder_name(title + " - " + streamer))
-        write_to_info_file(dir, title)
         os.makedirs(dir, exist_ok=True)
+        write_to_info_file(dir, title)
         return dir
 
     except Exception as e:
@@ -67,6 +67,7 @@ async def initialize_scraping(page: Page, clip_url: str, language: str):
         else:
             links = page.locator("xpath=/html/body/main/div[5]/div/div[3]/div/div[2]/div[1]/div/a")
             sprint(f"Grabbed the dl link, downloading now...")
+            page.set_default_timeout(25000)
             response = httpx.get(await links.get_attribute('href'))
             with open(os.path.join(dir, 'clip.mp4'), 'wb') as f:
                 f.write(response.content)
