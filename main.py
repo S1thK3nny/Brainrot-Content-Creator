@@ -16,6 +16,7 @@ from uploader import upload_tiktok
 from whisper_timestamped import tokenizer
 
 things_to_say = []
+tags = " #tiktok #shorts #funny #funnyvideos #funnyvideo #meme #memes #memestiktok #memestiktok😂😂 #edutok #edutokmotivation #lifechange #reddit #redditstories #askreddit #askredditstories #fyp #fypシ #fy #For #ForYou #foryoupage #foryoupag #foryoupageofficiall #ThisIs4You #fun #lmao #humor #memesdaily #dank #laugh #lol #funny"
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Brain Rot Content Creator - Process Reddit or Streamscharts content to create Shorts for TikTok and YT-Shorts.')
@@ -34,7 +35,7 @@ async def handle_reddit(args) -> None:
     dir = await start_browser_instance_reddit(args.link, args.subreddit, things_to_say)
     save_text_as_mp3(dir, things_to_say)
 
-    title = things_to_say[0] + " #tiktok #shorts #funny #funnyvideos #funnyvideo #meme #memes #memestiktok #memestiktok😂😂 #edutok #edutokmotivation #lifechange #reddit #redditstories #fyp #fypシ #fy"
+    title = things_to_say[0] + tags
     write_to_info_file(dir, title)
     to_video(dir, args.open)
     save_text(dir, things_to_say)
@@ -47,7 +48,7 @@ async def handle_twitch(args) -> None:
     with open(dir + 'info.txt', 'r') as file:
         title = file.read()
 
-    title = title + " #tiktok #shorts #funny #funnyvideos #funnyvideo #meme #memes #memestiktok #memestiktok😂😂 #edutok #edutokmotivation #lifechange #reddit #redditstories #fyp #fypシ #fy"
+    title = title + tags
     return dir, title
 
 

@@ -5,7 +5,7 @@ from moviepy.audio.fx.all import audio_loop, volumex
 import os
 import random
 import winsound
-from utils import sprint, choose_random_file, write_to_info_file
+from utils import sprint, choose_random_file, write_to_info_file, open_results
 
 
 # YouTube Shorts are 1080x1920
@@ -129,5 +129,4 @@ def to_video(dir, open_file):
     final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None, remove_temp=True)
     winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
 
-    if open_file:
-        os.startfile(dir + "/result.mp4")
+    open_results(dir, open_file)

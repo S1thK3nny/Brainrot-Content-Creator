@@ -62,3 +62,15 @@ def check_file_exists(file_path, file_type):
         sprint(f"{file_type} not found!")
         return False
     return True
+
+def open_results(dir, open_when_done):
+    if not open_when_done:
+        return
+    
+    sprint("Opening important stuff...")
+    if os.path.isdir(dir):
+        os.startfile(dir)
+        if os.path.isfile(dir + "/result.mp4"):
+            os.startfile(dir + "/result.mp4")
+        if os.path.isfile(dir + "/info.txt"):
+            os.startfile(dir + "/info.txt")

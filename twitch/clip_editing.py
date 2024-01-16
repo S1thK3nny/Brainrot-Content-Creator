@@ -3,6 +3,7 @@ import whisper_timestamped
 from moviepy.video.fx.resize import resize
 from moviepy.video.fx.all import crop
 from reddit.convert_to_mp4 import add_gameplay, add_bgmusic
+from utils import open_results
 import time
 import winsound
 import os
@@ -68,9 +69,7 @@ def initialize_editing(dir, open_when_done, language):
         final_video.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', remove_temp=True, logger=None)
         winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
 
-        if open_when_done:
-            if os.path.isfile(dir + "/result.mp4"):
-                os.startfile(dir + "/result.mp4")
+        open_results(dir, open_when_done)
     finally:
         # Close the video clip objects to release resources
         clip.close()
