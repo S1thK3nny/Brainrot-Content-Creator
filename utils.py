@@ -63,10 +63,7 @@ def check_file_exists(file_path, file_type):
         return False
     return True
 
-def open_results(dir, open_when_done):
-    if not open_when_done:
-        return
-    
+def open_results(dir):
     sprint("Opening important stuff...")
     if os.path.isdir(dir):
         os.startfile(dir)

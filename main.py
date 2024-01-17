@@ -10,7 +10,7 @@ from reddit.convert_to_mp4 import to_video
 from twitch.clip_scraper import start_browser_instance_twitch
 from twitch.clip_editing import initialize_editing
 
-from utils import save_text, write_to_info_file
+from utils import save_text, write_to_info_file, open_results
 from uploader import upload_tiktok
 
 from whisper_timestamped import tokenizer
@@ -37,13 +37,13 @@ async def handle_reddit(args) -> None:
 
     title = things_to_say[0] + tags
     write_to_info_file(dir, title)
-    to_video(dir, args.open)
+    to_video(dir)
     save_text(dir, things_to_say)
     return dir, title
 
 async def handle_twitch(args) -> None:
     dir = await start_browser_instance_twitch(args.link, args.language)
-    initialize_editing(dir, args.open, args.language)
+    initialize_editing(dir, args.language)
 
     with open(dir + 'info.txt', 'r') as file:
         title = file.read()
@@ -67,6 +67,9 @@ async def main() -> None:
     args = parse_arguments()
 
     dir, title = await modes[args.mode](args)
+
+    if args.open:
+        open_results(dir)
 
     # if args.tiktok:
     #    upload_tiktok(dir + "/result.mp4", title)
