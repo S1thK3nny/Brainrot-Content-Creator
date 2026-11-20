@@ -25,18 +25,18 @@ async def get_posts_and_dir(page: Page):
     posts = page.locator("shreddit-post")
     op = await posts.get_attribute("author")
     datetime = (await posts.locator("time").get_attribute("datetime")).replace(":", "_")
-    dir = os.getcwd() + "/FINISHED/Reddit/" + op + " - " + datetime
-    return posts, dir
+    out_dir = os.getcwd() + "/FINISHED/Reddit/" + op + " - " + datetime
+    return posts, out_dir
 
 async def capturePost(page: Page, things_to_say) -> None:
     page_title = await page.inner_text("h1")  # Grabs the title of the post
     things_to_say.append(page_title)
-    posts, dir = await get_posts_and_dir(page)
-    await posts.first.screenshot(path=os.path.join(dir + "/images/post", "post.png"))
-    return dir
+    posts, out_dir = await get_posts_and_dir(page)
+    await posts.first.screenshot(path=os.path.join(out_dir + "/images/post", "post.png"))
+    return out_dir
 
 # TODO: Account for 0 comments
-async def captureComments(page: Page, dir, things_to_say) -> None:
+async def captureComments(page: Page, out_dir, things_to_say) -> None:
     comments = page.locator("shreddit-comment")
     count = await comments.count()
     print("\n--------------------------------------------------")
@@ -61,7 +61,7 @@ async def captureComments(page: Page, dir, things_to_say) -> None:
                     continue
             if comment:  # Check if the comment list is not empty
                 things_to_say.append(comment)
-                await comments.nth(i).screenshot(path=os.path.join(dir + "/images/comments/", f"comment-{file_num}.png"))
+                await comments.nth(i).screenshot(path=os.path.join(out_dir + "/images/comments/", f"comment-{file_num}.png"))
                 file_num += 1
         else:
             sprint("Comment " + str(i) + " is not a top comment!")
@@ -70,9 +70,9 @@ async def captureComments(page: Page, dir, things_to_say) -> None:
 
 async def capture(page, url: str, things_to_say) -> None:
     await page.goto(url)
-    dir = await capturePost(page, things_to_say)
-    await captureComments(page, dir, things_to_say)
-    return dir
+    out_dir = await capturePost(page, things_to_say)
+    await captureComments(page, out_dir, things_to_say)
+    return out_dir
 
 
 
@@ -100,15 +100,15 @@ async def screenshot_and_convert(page: Page, reddit_url=None, subreddit=None, th
         sprint(f"Chosen Reddit URL: {reddit_url}")
         await page.goto(reddit_url)
 
-        _, dir = await get_posts_and_dir(page)
-        if os.path.exists(dir + "/result.mp4"):
-            sprint(f"{dir} exists already, choosing another post...")
+        _, out_dir = await get_posts_and_dir(page)
+        if os.path.exists(out_dir + "/result.mp4"):
+            sprint(f"{out_dir} exists already, choosing another post...")
             reddit_url = None  # Reset reddit_url to choose another post
         else:
-            dir = await capture(page, reddit_url, things_to_say)
+            out_dir = await capture(page, reddit_url, things_to_say)
             break  # Break the loop once a valid post is found
 
-    return dir
+    return out_dir
 
 async def start_browser_instance_reddit(reddit_url, subreddit, things_to_say):
     async with async_playwright() as p:
@@ -119,6 +119,6 @@ async def start_browser_instance_reddit(reddit_url, subreddit, things_to_say):
         "Chrome/69.0.3497.100 Safari/537.36"
         )
         page = await browser.new_page(user_agent=ua)
-        dir = await screenshot_and_convert(page, reddit_url, subreddit, things_to_say)
+        out_dir = await screenshot_and_convert(page, reddit_url, subreddit, things_to_say)
         await browser.close()
-    return dir
+    return out_dir

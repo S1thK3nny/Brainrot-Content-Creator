@@ -11,17 +11,17 @@ from utils import sprint, choose_random_file, write_to_info_file
 # YouTube Shorts are 1080x1920
 
 
-def post_to_clip(dir):
+def post_to_clip(out_dir):
     # The post stuff will always be called post.mp3 and post.png, so let us simply turn it into an imageclip.
-    audio_clip = AudioFileClip(dir + "/audio/post/post.mp3")
-    img_clip = ImageClip(dir + "/images/post/post.png", duration=audio_clip.duration)
+    audio_clip = AudioFileClip(out_dir + "/audio/post/post.mp3")
+    img_clip = ImageClip(out_dir + "/images/post/post.png", duration=audio_clip.duration)
     img_clip = img_clip.set_audio(audio_clip)
 
     return img_clip, audio_clip.duration
 
-def comments_to_clip(dir, post_clip_audio_duration):
-    images_directory = os.path.join(dir, "images/comments/")
-    audio_directory = os.path.join(dir, "audio/comments/")
+def comments_to_clip(out_dir, post_clip_audio_duration):
+    images_directory = os.path.join(out_dir, "images/comments/")
+    audio_directory = os.path.join(out_dir, "audio/comments/")
 
     images = sorted(os.listdir(images_directory))
     audio_files = sorted(os.listdir(audio_directory))
@@ -54,10 +54,10 @@ def comments_to_clip(dir, post_clip_audio_duration):
 
     return clips
 
-def add_gameplay(final_clip_duration, list, height):
+def add_gameplay(final_clip_duration, info_lines, height):
     # Choose random gameplay from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/gameplay/")
-    list.append(sprint(f"chosen gameplay is {rndfile}")) # Don't just print which gameplay file is chosen, but also save the print
+    info_lines.append(sprint(f"chosen gameplay is {rndfile}")) # Don't just print which gameplay file is chosen, but also save the print
     gameplay = VideoFileClip(rndfile)
     original_duration = gameplay.duration
     
@@ -81,10 +81,10 @@ def add_gameplay(final_clip_duration, list, height):
 
     return gameplay_clip
 
-def add_bgmusic(final_clip_duration, list):
+def add_bgmusic(final_clip_duration, info_lines):
     # Choose random music from the given resources
     rndfile = choose_random_file(os.getcwd() + "/resources/music/")
-    list.append(sprint(f"chosen music is {rndfile}")) # Don't just print which music file is chosen, but also save the print
+    info_lines.append(sprint(f"chosen music is {rndfile}")) # Don't just print which music file is chosen, but also save the print
     bgmusic = AudioFileClip(rndfile)
 
     # If the audio is longer than the video, trim it
@@ -99,12 +99,12 @@ def add_bgmusic(final_clip_duration, list):
 
     return bgmusic
 
-def to_video(dir):
+def to_video(out_dir):
     print("\n--------------------------------------------------")
     sprint("Starting with the video conversion!\n")
 
-    post_clips, post_clip_audio_duration = post_to_clip(dir)
-    comment_clips = comments_to_clip(dir, post_clip_audio_duration)
+    post_clips, post_clip_audio_duration = post_to_clip(out_dir)
+    comment_clips = comments_to_clip(out_dir, post_clip_audio_duration)
     all_clips = [post_clips] + comment_clips
 
     final_clip = concatenate_videoclips(all_clips, method="compose")
@@ -113,18 +113,18 @@ def to_video(dir):
     
     background_clip = ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=final_clip.duration)  # Add alpha channel for transparency
 
-    list = []
+    info_lines = []
 
-    gameplay = add_gameplay(final_clip.duration, list, 1920)
-    music = add_bgmusic(final_clip.duration, list)
+    gameplay = add_gameplay(final_clip.duration, info_lines, 1920)
+    music = add_bgmusic(final_clip.duration, info_lines)
 
     final_clip = CompositeVideoClip([gameplay, background_clip.set_position(("center", "center")), final_clip.set_position(("center", "top"))], use_bgclip=True) # Merge gameplay and the transparent video clip with the reddit images we created
     final_clip.audio = CompositeAudioClip([final_clip.audio, music])
 
     sprint("Writing gameplay and bgmusic to info.txt!\n")
-    write_to_info_file(dir, list[0])
-    write_to_info_file(dir, list[1])
+    write_to_info_file(out_dir, info_lines[0])
+    write_to_info_file(out_dir, info_lines[1])
 
     sprint("Done with the conversion progress, saving to file now!\n--------------------------------------------------\n")
-    final_clip.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None, remove_temp=True)
+    final_clip.write_videofile(out_dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', logger=None, remove_temp=True)
     winsound.PlaySound("SystemExit", winsound.SND_ALIAS)

@@ -12,9 +12,9 @@ def sprint(message):
     func = frame.f_code.co_name
     if func != '<module>':  # Exclude module-level
         prefix += ": " + func
-    str = prefix + " - " + message
-    print(str)
-    return str
+    line = prefix + " - " + message
+    print(line)
+    return line
 
 def title_to_folder_name(title):
     # List of characters that are not allowed in Windows folder names
@@ -29,8 +29,8 @@ def title_to_folder_name(title):
     
     return title
 
-def write_to_info_file(dir, text):
-    info_filename = f"{dir}/info.txt"
+def write_to_info_file(out_dir, text):
+    info_filename = f"{out_dir}/info.txt"
     with open(info_filename, 'a', encoding='utf-8') as info_file:
         info_file.write(strip_special_chars(text) + '\n')
 
@@ -39,13 +39,13 @@ def strip_special_chars(text: str) -> str:
     printable = set(string.printable)
     return ''.join(filter(lambda x: x in printable, text))
 
-def choose_random_file(dir):
-    files = sorted(os.listdir(dir))
-    return str(dir + random.choice([file for file in files]))
+def choose_random_file(folder):
+    files = sorted(os.listdir(folder))
+    return str(folder + random.choice([file for file in files]))
 
-def save_text(dir, things_to_say):
+def save_text(out_dir, things_to_say):
     try:
-        with open(dir + "/text.txt", 'w') as file:
+        with open(out_dir + "/text.txt", 'w') as file:
             for i in range(len(things_to_say)):
                 if i == 0:
                     file.write(strip_special_chars(things_to_say[i]))
@@ -63,11 +63,11 @@ def check_file_exists(file_path, file_type):
         return False
     return True
 
-def open_results(dir):
+def open_results(out_dir):
     sprint("Opening important stuff...")
-    if os.path.isdir(dir):
-        os.startfile(dir)
-        if os.path.isfile(dir + "/result.mp4"):
-            os.startfile(dir + "/result.mp4")
-        if os.path.isfile(dir + "/info.txt"):
-            os.startfile(dir + "/info.txt")
+    if os.path.isdir(out_dir):
+        os.startfile(out_dir)
+        if os.path.isfile(out_dir + "/result.mp4"):
+            os.startfile(out_dir + "/result.mp4")
+        if os.path.isfile(out_dir + "/info.txt"):
+            os.startfile(out_dir + "/info.txt")

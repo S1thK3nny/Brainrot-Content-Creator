@@ -1,0 +1,15 @@
+# Generated with pipreqs (https://github.com/bndr/pipreqs), then hand-corrected.
+# Install with:  pip install -r requirements.txt  &&  playwright install chromium
+#
+# Also required, outside pip:
+#   - FFmpeg        (moviepy uses it to read and write video)
+#   - ImageMagick   (moviepy's TextClip needs it to render Twitch subtitles)
+
+Gooey~=1.0.8.1
+httpx~=0.28.1
+moviepy~=1.0.3          # 2.x removed moviepy.editor, which this project uses
+playsound==1.2.2        # 1.3.0 is broken on Windows
+playwright~=1.52.0
+requests~=2.32.3
+tiktok-uploader~=1.2.0  # only needed for uploader.py
+whisper-timestamped~=1.15.4

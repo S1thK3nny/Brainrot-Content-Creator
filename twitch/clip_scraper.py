@@ -39,10 +39,10 @@ async def createDir(page: Page, language: str):
         title = await element2.inner_text()
         sprint(f"Streamer: {streamer}\tTitle: {title}")
 
-        dir = os.path.join(os.getcwd(), "FINISHED", "Twitch", language, title_to_folder_name(title + " - " + streamer))
-        os.makedirs(dir, exist_ok=True)
-        write_to_info_file(dir, title)
-        return dir
+        out_dir = os.path.join(os.getcwd(), "FINISHED", "Twitch", language, title_to_folder_name(title + " - " + streamer))
+        os.makedirs(out_dir, exist_ok=True)
+        write_to_info_file(out_dir, title)
+        return out_dir
 
     except Exception as e:
         sprint(f"An error occurred: {e}")
@@ -56,40 +56,40 @@ async def initialize_scraping(page: Page, clip_url: str, language: str):
         sprint(f"Chosen Clip: {clip_url}")
         await page.goto(clip_url)
 
-        dir = await createDir(page, language)
+        out_dir = await createDir(page, language)
 
-        if dir is None:
+        if out_dir is None:
             return None
         
-        if os.path.exists(dir + "/result.mp4"):
-                sprint(f"{dir} exists already, choosing another post...")
+        if os.path.exists(out_dir + "/result.mp4"):
+                sprint(f"{out_dir} exists already, choosing another post...")
                 clip_url = None  # Reset clip_url to choose another post
         else:
             links = page.locator("xpath=/html/body/main/div[5]/div/div[3]/div/div[2]/div[1]/div/a")
             sprint(f"Grabbed the dl link, downloading now...")
             page.set_default_timeout(25000)
             response = httpx.get(await links.get_attribute('href'))
-            with open(os.path.join(dir, 'clip.mp4'), 'wb') as f:
+            with open(os.path.join(out_dir, 'clip.mp4'), 'wb') as f:
                 f.write(response.content)
             break  # Break the loop once a valid post is found
-    return dir
+    return out_dir
 
 async def start_actual_browser_instance_twitch(clip_url: str, language: str):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         page = await browser.new_page()
-        dir = await initialize_scraping(page, clip_url, language)
+        out_dir = await initialize_scraping(page, clip_url, language)
 
-        if dir is None:
+        if out_dir is None:
             # Restart the browser instance
             await browser.close()
             return await start_actual_browser_instance_twitch(clip_url, language)
 
         await browser.close()
-    return dir
+    return out_dir
 
 async def start_browser_instance_twitch(clip_url: str, language: str):
     print("\n--------------------------------------------------")
-    dir = await start_actual_browser_instance_twitch(clip_url=clip_url, language=language)
+    out_dir = await start_actual_browser_instance_twitch(clip_url=clip_url, language=language)
     print("--------------------------------------------------\n")
-    return dir
+    return out_dir

@@ -7,9 +7,9 @@ import time
 import winsound
 import os
 
-def generate_subtitles(dir, language: str):
-    generated_audio = dir + '/final_audio.wav'
-    existing_clip = dir + '/clip.mp4'
+def generate_subtitles(out_dir, language: str):
+    generated_audio = out_dir + '/final_audio.wav'
+    existing_clip = out_dir + '/clip.mp4'
 
     # Load the model and decoding options
     model = whisper_timestamped.load_model('base')
@@ -49,12 +49,12 @@ def generate_subtitles(dir, language: str):
 
     return final_video, generated_audio, existing_clip, video
 
-def initialize_editing(dir, language):
+def initialize_editing(out_dir, language):
     print("\n--------------------------------------------------")
-    list = []
-    clip, generated_audio, existing_clip, vid = generate_subtitles(dir, language)
-    gameplay = add_gameplay(clip.duration, list, 960)
-    bgmusic = add_bgmusic(clip.duration, list)
+    info_lines = []
+    clip, generated_audio, existing_clip, vid = generate_subtitles(out_dir, language)
+    gameplay = add_gameplay(clip.duration, info_lines, 960)
+    bgmusic = add_bgmusic(clip.duration, info_lines)
     final_video = mp.ColorClip(size=(1080, 1920), color=(255, 255, 255, 0), duration=clip.duration)  # Add alpha channel for transparency
     final_video = resize(final_video, (1080, 1920))
 
@@ -65,7 +65,7 @@ def initialize_editing(dir, language):
         # Part 2 fix for when CompositeVideoClip somehow screws up the duration. Why? I don't know. How? I don't know.
         final_video.duration = clip.duration
 
-        final_video.write_videofile(dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', remove_temp=True, logger=None)
+        final_video.write_videofile(out_dir + "/result.mp4", codec='libx264', threads=16, fps=24, audio_codec='aac', remove_temp=True, logger=None)
         winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
     finally:
         # Close the video clip objects to release resources
